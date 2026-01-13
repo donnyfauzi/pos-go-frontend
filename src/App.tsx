@@ -6,7 +6,7 @@ import AdminDashboard from './pages/admin/Dashboard';
 import KasirDashboard from './pages/kasir/Dashboard';
 import ProtectedRoute from './components/ProtectedRoute';
 import AuthInitializer from './components/AuthInitializer';
-import CreateMenu from './pages/admin/CreateMenu';
+import ListMenu from './pages/admin/ListMenu';
 
 function App() {
   return (
@@ -47,10 +47,10 @@ function App() {
           }
         />
         <Route
-          path="/admin/menu/create"
+          path="/admin/menu"
           element={
             <ProtectedRoute allowedRoles={['admin']}>
-              <CreateMenu />
+              <ListMenu />
             </ProtectedRoute>
           }
         />

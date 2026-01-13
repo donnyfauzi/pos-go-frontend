@@ -135,11 +135,11 @@ export default function AdminDashboard() {
           <h3 className="text-xl font-bold text-gray-900 mb-4">Quick Actions</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <button 
-              onClick={() => navigate('/admin/menu/create')}
+              onClick={() => navigate('/admin/menu')}
               className="p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors text-left w-full"
             >
-              <p className="font-medium text-gray-900">Tambah Menu</p>
-              <p className="text-sm text-gray-500 mt-1">Tambah menu baru ke sistem</p>
+              <p className="font-medium text-gray-900">Kelola Menu</p>
+              <p className="text-sm text-gray-500 mt-1">Lihat dan kelola semua menu</p>
             </button>
             <button
               onClick={() => navigate('/register')}

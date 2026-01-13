@@ -86,3 +86,9 @@ export interface GetCategoriesResponse {
     message: string;
     data: Category[];
 }
+
+export interface GetMenusResponse {
+    success: boolean;
+    message: string;
+    data: Menu[];
+}
