@@ -7,10 +7,12 @@ import Button from '../../components/UI/Button';
 import Modal from '../../components/UI/Modal';
 import ConfirmDialog from '../../components/UI/ConfirmDialog';
 import MenuForm from '../../components/Forms/MenuForm';
+import CategoryForm from '../../components/Forms/CategoryForm';
 import Alert from '../../components/UI/Alert';
-import { Plus, Search, Edit, Trash2, ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, ArrowLeft, ChevronLeft, ChevronRight, Tag } from 'lucide-react';
 import type { Menu, Category } from '../../types';
 import type { MenuFormData } from '../../components/Forms/MenuForm';
+import type { CategoryFormData } from '../../components/Forms/CategoryForm';
 
 export default function ListMenu() {
   const navigate = useNavigate();
@@ -28,6 +30,8 @@ export default function ListMenu() {
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [menuToDelete, setMenuToDelete] = useState<Menu | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+  const [isSubmittingCategory, setIsSubmittingCategory] = useState(false);
   const itemsPerPage = 6;
 
   // Fetch menus
@@ -185,6 +189,37 @@ export default function ListMenu() {
     setEditingMenu(null);
   };
 
+  // Handle category form submit
+  const handleCategorySubmit = async (data: CategoryFormData) => {
+    setIsSubmittingCategory(true);
+    setError('');
+    setSuccess('');
+
+    try {
+      const response = await categoryService.createCategory(data);
+      setSuccess(response.message || 'Kategori berhasil ditambahkan');
+      setIsCategoryModalOpen(false);
+      fetchCategories(); // Refresh categories
+    } catch (err: any) {
+      if (err.response?.data?.message) {
+        setError(err.response.data.message);
+      } else if (err.response?.data?.errors) {
+        const firstError = Object.values(err.response.data.errors)[0];
+        setError(typeof firstError === 'string' ? firstError : 'Validasi gagal');
+      } else {
+        setError('Terjadi kesalahan, silahkan coba lagi');
+      }
+      throw err;
+    } finally {
+      setIsSubmittingCategory(false);
+    }
+  };
+
+  // Close category modal
+  const handleCloseCategoryModal = () => {
+    setIsCategoryModalOpen(false);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 py-6 px-4 sm:px-6 lg:px-8">
       {/* Back Button */}
@@ -241,7 +276,7 @@ export default function ListMenu() {
                 placeholder="Cari menu..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
               />
             </div>
 
@@ -249,7 +284,7 @@ export default function ListMenu() {
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
             >
               <option value="">Semua Kategori</option>
               {categories.map((cat) => (
@@ -259,7 +294,17 @@ export default function ListMenu() {
               ))}
             </select>
 
-            {/* Add Button */}
+            {/* Manage Category Button */}
+            <Button
+              variant="secondary"
+              onClick={() => setIsCategoryModalOpen(true)}
+              className="flex items-center gap-2"
+            >
+              <Tag size={18} />
+              Kelola Kategori
+            </Button>
+
+            {/* Add Menu Button */}
             <Button
               variant="primary"
               onClick={handleCreateClick}
@@ -451,6 +496,20 @@ export default function ListMenu() {
         variant="danger"
         isLoading={isDeleting}
       />
+
+      {/* Category Modal */}
+      <Modal
+        isOpen={isCategoryModalOpen}
+        onClose={handleCloseCategoryModal}
+        title="Tambah Kategori Baru"
+        size="md"
+      >
+        <CategoryForm
+          onSubmit={handleCategorySubmit}
+          onCancel={handleCloseCategoryModal}
+          isLoading={isSubmittingCategory}
+        />
+      </Modal>
     </div>
   );
 }

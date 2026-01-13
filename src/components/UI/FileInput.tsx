@@ -99,7 +99,7 @@ export default function FileInput({
             <div className="mt-4">
               <label
                 htmlFor="file-upload"
-                className="cursor-pointer bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 inline-block"
+                className="cursor-pointer bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 inline-block"
               >
                 Pilih Gambar
               </label>

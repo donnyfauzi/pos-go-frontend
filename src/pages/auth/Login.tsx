@@ -52,12 +52,22 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      {/* Main Card Container */}
-      <div className="w-full max-w-5xl bg-white rounded-2xl shadow-2xl overflow-hidden">
+    <div 
+      className="min-h-screen flex items-center justify-center bg-cover bg-center bg-no-repeat relative"
+      style={{
+        backgroundImage: 'url(/bg-login-1.jpeg)',
+      }}
+    >
+      {/* Overlay untuk meningkatkan readability */}
+      <div className="absolute inset-0 bg-black bg-opacity-30"></div>
+      
+      {/* Content dengan relative positioning */}
+      <div className="relative z-10 w-full flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        {/* Main Card Container */}
+        <div className="w-full max-w-5xl bg-gray-100/95 backdrop-blur-sm rounded-2xl shadow-2xl overflow-hidden border border-gray-200/50">
         <div className="flex flex-col lg:flex-row">
           {/* Left Side - Image (Hidden di mobile, Show di desktop) */}
-          <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-slate-50 to-gray-50 items-center justify-center p-8">
+          <div className="hidden lg:flex lg:w-1/2 bg-gray-200/80 items-center justify-center p-8">
             <div className="w-full max-w-md">
               <img
                 src="/login-image.png"
@@ -68,19 +78,19 @@ export default function Login() {
           </div>
 
           {/* Right Side - Login Form */}
-          <div className="w-full lg:w-1/2 flex items-center justify-center p-8 lg:p-12 bg-white border-l-0 lg:border-l border-gray-200">
+          <div className="w-full lg:w-1/2 flex items-center justify-center p-8 lg:p-12 bg-gray-100/95 border-l-0 lg:border-l border-gray-300/50">
             <div className="w-full max-w-md">
               {/* Logo/Header */}
               <div className="text-center mb-8">
-                <h1 className="text-4xl font-bold text-gray-900 mb-2">Masuk</h1>
-                <p className="text-gray-600">Sistem Point of Sale Restoran</p>
+                <h1 className="text-4xl font-bold text-gray-700 mb-2">Masuk</h1>
+                <p className="text-gray-500">Sistem Point of Sale Restoran</p>
               </div>
 
               {/* Login Form */}
               <div className="space-y-6">
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900">Masuk ke Akun</h2>
-                  <p className="text-gray-600 mt-1">Silahkan login untuk melanjutkan</p>
+                  <h2 className="text-2xl font-bold text-gray-700">Masuk ke Akun</h2>
+                  <p className="text-gray-500 mt-1">Silahkan login untuk melanjutkan</p>
                 </div>
 
                 {/* Error Message */}
@@ -135,6 +145,7 @@ export default function Login() {
               </div>
             </div>
           </div>
+        </div>
         </div>
       </div>
     </div>
