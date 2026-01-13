@@ -17,7 +17,14 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
       <div className="mb-4">
         {label && (
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            {label}
+            {label.includes('*') ? (
+              <>
+                {label.replace('*', '')}
+                <span className="text-red-500">*</span>
+              </>
+            ) : (
+              label
+            )}
           </label>
         )}
         <div className="relative">

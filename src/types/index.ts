@@ -45,3 +45,44 @@ export interface GetCurrentUserResponse {
     message: string;
     data: User;
 }
+
+export interface Category {
+    id: string;
+    name: string;
+    CreatedAt?: string;
+    UpdatedAt?: string;
+}
+  
+export interface Menu {
+    id: string;
+    name: string;
+    description: string;
+    price: number;
+    image: string;
+    is_available: boolean;
+    category_id: string;
+    category?: Category;
+    CreatedAt?: string;
+    UpdatedAt?: string;
+}
+  
+export interface CreateMenuRequest {
+    name: string;
+    description: string;
+    price: number;
+    category_id: string;
+    is_available: boolean;
+    image: File; // File object untuk upload
+}
+  
+export interface CreateMenuResponse {
+    success: boolean;
+    message: string;
+    data: Menu;
+}
+  
+export interface GetCategoriesResponse {
+    success: boolean;
+    message: string;
+    data: Category[];
+}
