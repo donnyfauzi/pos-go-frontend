@@ -1,5 +1,5 @@
 import api from './api';
-import type { LoginRequest, LoginResponse, RegisterRequest, RegisterResponse, GetCurrentUserResponse } from '../types';
+import type { LoginRequest, LoginResponse, RegisterRequest, RegisterResponse, GetCurrentUserResponse, GetUsersResponse } from '../types';
 
 export const authService = {
   login: async (data: LoginRequest): Promise<LoginResponse> => {
@@ -19,6 +19,16 @@ export const authService = {
 
   getCurrentUser: async (): Promise<GetCurrentUserResponse> => {
     const response = await api.get<GetCurrentUserResponse>('/auth/me');
+    return response.data;
+  },
+
+  getAllUsers: async (): Promise<GetUsersResponse> => {
+    const response = await api.get<GetUsersResponse>('/user');
+    return response.data;
+  },
+  
+  deleteUser: async (userId: string): Promise<{ success: boolean; message: string }> => {
+    const response = await api.delete(`/user/${userId}`);
     return response.data;
   },
 };

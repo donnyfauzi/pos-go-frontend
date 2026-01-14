@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuthStore } from '../../store/authStore';
 import { menuService } from '../../services/menuService';
 import { categoryService } from '../../services/categoryService';
 import Card from '../../components/UI/Card';
@@ -9,13 +10,20 @@ import ConfirmDialog from '../../components/UI/ConfirmDialog';
 import MenuForm from '../../components/Forms/MenuForm';
 import CategoryForm from '../../components/Forms/CategoryForm';
 import Alert from '../../components/UI/Alert';
-import { Plus, Search, Edit, Trash2, ArrowLeft, ChevronLeft, ChevronRight, Tag } from 'lucide-react';
+import Dropdown from '../../components/UI/Dropdown';
+import { Plus, Search, Edit, Trash2, ArrowLeft, ChevronLeft, ChevronRight, Tag, Lock, LogOut, User as UserIcon } from 'lucide-react';
 import type { Menu, Category } from '../../types';
 import type { MenuFormData } from '../../components/Forms/MenuForm';
 import type { CategoryFormData } from '../../components/Forms/CategoryForm';
 
 export default function ListMenu() {
   const navigate = useNavigate();
+  const { user, logout } = useAuthStore();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
   const [menus, setMenus] = useState<Menu[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -32,7 +40,7 @@ export default function ListMenu() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [isSubmittingCategory, setIsSubmittingCategory] = useState(false);
-  const itemsPerPage = 6;
+  const itemsPerPage = 8;
 
   // Fetch menus
   const fetchMenus = async () => {
@@ -221,20 +229,63 @@ export default function ListMenu() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-6 px-4 sm:px-6 lg:px-8">
-      {/* Back Button */}
-      <div className="max-w-7xl mx-auto mb-4">
-        <button
-          onClick={() => navigate('/admin/dashboard')}
-          className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center gap-2"
-        >
-          <ArrowLeft size={18} />
-          Kembali ke Dashboard
-        </button>
-      </div>
+    <div className="min-h-screen bg-gray-200">
+      {/* Fixed Header */}
+      <header className="fixed top-0 left-0 right-0 bg-gray-100 shadow-md z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-0">
+            <div>
+              <img
+                src="/logo-dashboard.png"
+                alt="POS Go"
+                className="h-20 w-auto"
+              />
+            </div>
+            <div className="flex items-center gap-4">
+              <Dropdown
+                trigger={
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
+                      <UserIcon size={18} className="text-gray-600" />
+                    </div>
+                    <div className="text-left hidden sm:block">
+                      <p className="text-sm font-medium text-gray-900">{user?.name}</p>
+                      <p className="text-xs text-gray-500">{user?.email}</p>
+                    </div>
+                  </div>
+                }
+                items={[
+                  {
+                    label: 'Ubah Password',
+                    icon: <Lock size={16} />,
+                    onClick: () => navigate('/change-password'),
+                  },
+                  {
+                    label: 'Logout',
+                    icon: <LogOut size={16} />,
+                    onClick: handleLogout,
+                    variant: 'danger',
+                  },
+                ]}
+              />
+            </div>
+          </div>
+        </div>
+      </header>
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto">
+      {/* Main Content with padding-top for fixed header */}
+      <main className="pt-24 pb-6 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          {/* Back Button */}
+          <div className="mb-4">
+            <button
+              onClick={() => navigate('/admin/dashboard')}
+              className="text-teal-800 hover:text-teal-600 text-sm font-medium flex items-center gap-2"
+            >
+              <ArrowLeft size={18} />
+              Kembali ke Dashboard
+            </button>
+          </div>
         {/* Welcome Card */}
         <Card className="mb-4 py-3">
           <div className="flex items-center justify-between">
@@ -245,6 +296,13 @@ export default function ListMenu() {
               <p className="text-sm text-gray-600">
                 Lihat dan kelola semua menu restoran
               </p>
+            </div>
+            <div className="hidden md:block">
+              <img
+                src="/logo-card2.png"
+                alt="Welcome"
+                className="h-24 w-auto"
+              />
             </div>
           </div>
         </Card>
@@ -339,11 +397,11 @@ export default function ListMenu() {
           </Card>
         ) : (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
               {paginatedMenus.map((menu) => (
               <Card key={menu.id} className="overflow-hidden hover:shadow-lg transition-shadow">
                 {/* Image */}
-                <div className="relative bg-gray-100 aspect-[4/3] rounded-lg overflow-hidden">
+                <div className="relative bg-gray-100 aspect-[4/3] rounded-lg overflow-hidden mb-1">
                   <img
                     src={`${import.meta.env.VITE_API_URL}/${menu.image}`}
                     alt={menu.name}
@@ -354,7 +412,7 @@ export default function ListMenu() {
                   />
                   {/* Status Badge */}
                   <div
-                    className={`absolute top-3 right-3 px-2 py-1 rounded-full text-xs font-medium ${
+                    className={`absolute top-1.5 right-1.5 px-1.5 py-0.5 rounded-full text-xs font-medium ${
                       menu.is_available
                         ? 'bg-green-500 text-white'
                         : 'bg-gray-500 text-white'
@@ -365,38 +423,40 @@ export default function ListMenu() {
                 </div>
 
                 {/* Content */}
-                <div className="p-3">
-                  <h3 className="text-base font-bold text-gray-900 mb-1 truncate">
+                <div className="p-2">
+                  <h3 className="text-sm font-bold text-gray-900 mb-0.5 truncate">
                     {menu.name}
                   </h3>
-                  {menu.category && (
-                    <span className="inline-block px-2 py-1 bg-purple-100 text-purple-700 text-xs font-medium rounded mb-1">
-                      {menu.category.name}
-                    </span>
-                  )}
-                  <p className="text-lg font-bold text-blue-600 mb-1">
-                    Rp {formatCurrency(menu.price)}
-                  </p>
-                  <p className="text-xs text-gray-500 line-clamp-1 mb-3 min-h-[1.25rem]">
+                  <div className="flex items-center gap-1.5 mb-1">
+                    {menu.category && (
+                      <span className="inline-block px-1.5 py-0.5 bg-purple-100 text-purple-700 text-xs font-medium rounded">
+                        {menu.category.name}
+                      </span>
+                    )}
+                    <p className="text-sm font-bold text-blue-600">
+                      Rp {formatCurrency(menu.price)}
+                    </p>
+                  </div>
+                  <p className="text-xs text-gray-500 line-clamp-1 mb-1.5 min-h-[0.875rem]">
                     {menu.description || 'Tidak ada deskripsi'}
                   </p>
 
                   {/* Actions */}
-                  <div className="flex gap-2">
+                  <div className="flex gap-1.5">
                     <Button
                       variant="primary"
                       onClick={() => handleEditClick(menu)}
-                      className="flex-1 flex items-center justify-center gap-2"
+                      className="flex-1 flex items-center justify-center gap-1 text-xs py-1"
                     >
-                      <Edit size={16} />
+                      <Edit size={14} />
                       Edit
                     </Button>
                     <Button
                       variant="danger"
                       onClick={() => handleDeleteClick(menu)}
-                      className="flex items-center justify-center gap-2 px-4"
+                      className="flex items-center justify-center gap-1 px-3 text-xs py-1"
                     >
-                      <Trash2 size={16} />
+                      <Trash2 size={14} />
                     </Button>
                   </div>
                 </div>
@@ -430,7 +490,7 @@ export default function ListMenu() {
                           onClick={() => setCurrentPage(page)}
                           className={`px-3 py-2 border rounded-lg ${
                             currentPage === page
-                              ? 'bg-blue-600 text-white border-blue-600'
+                              ? 'bg-teal-600 text-white border-teal-600'
                               : 'border-gray-300 hover:bg-gray-50'
                           }`}
                         >
@@ -467,6 +527,7 @@ export default function ListMenu() {
             )}
           </>
         )}
+        </div>
       </main>
 
       {/* Create/Edit Modal */}

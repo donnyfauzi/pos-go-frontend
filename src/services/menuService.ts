@@ -56,4 +56,8 @@ export const menuService = {
     const response = await api.get<GetMenusResponse>('/menu');
     return response.data;
   },
+  getPublicMenus: async (): Promise<GetMenusResponse> => {
+    const response = await api.get<GetMenusResponse>('/menu/public');
+    return response.data;
+  },
 };

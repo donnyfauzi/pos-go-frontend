@@ -92,3 +92,9 @@ export interface GetMenusResponse {
     message: string;
     data: Menu[];
 }
+
+export interface GetUsersResponse {
+    success: boolean;
+    message: string;
+    data: User[];
+  }

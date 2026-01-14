@@ -1,12 +1,13 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/auth/Login';
-import Register from './pages/auth/Register';
 import ChangePassword from './pages/auth/ChangePassword';
 import AdminDashboard from './pages/admin/Dashboard';
 import KasirDashboard from './pages/kasir/Dashboard';
 import ProtectedRoute from './components/ProtectedRoute';
 import AuthInitializer from './components/AuthInitializer';
 import ListMenu from './pages/admin/ListMenu';
+import ListUser from './pages/admin/ListUser';
+import CustomerMenu from './pages/customer/Menu';
 
 function App() {
   return (
@@ -14,14 +15,9 @@ function App() {
       <BrowserRouter>
         <Routes>
         <Route path="/login" element={<Login />} />
-        <Route
-          path="/register"
-          element={
-            <ProtectedRoute allowedRoles={['admin']}>
-              <Register />
-            </ProtectedRoute>
-          }
-        />
+        <Route path="/register" element={<Navigate to="/admin/user" replace />} />
+        {/* Public Routes - Customer */}
+        <Route path="/menu" element={<CustomerMenu />} />
         <Route
           path="/change-password"
           element={
@@ -51,6 +47,14 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={['admin']}>
               <ListMenu />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/user"
+          element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <ListUser />
             </ProtectedRoute>
           }
         />

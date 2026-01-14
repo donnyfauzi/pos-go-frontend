@@ -15,14 +15,17 @@ export default function KasirDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-200">
       {/* Header */}
       <header className="bg-white shadow-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
+          <div className="flex justify-between items-center py-0">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">POS Go</h1>
-              <p className="text-sm text-gray-600">Kasir Dashboard</p>
+              <img
+                src="/logo-dashboard.png"
+                alt="POS Go"
+                className="h-20 w-auto"
+              />
             </div>
             <div className="flex items-center gap-4">
               <Dropdown
@@ -69,6 +72,13 @@ export default function KasirDashboard() {
                 Siap untuk melayani pelanggan hari ini?
               </p>
             </div>
+            <div className="hidden md:block">
+              <img
+                src="/logo-card.png"
+                alt="Welcome"
+                className="h-24 w-auto"
+              />
+            </div>
           </div>
         </Card>
 
@@ -114,42 +124,42 @@ export default function KasirDashboard() {
 
         {/* Quick Stats - Optional */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
-          <Card>
+          <Card className="bg-gradient-to-br from-teal-50 to-white border border-teal-100">
             <div className="p-4">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600">Transaksi Hari Ini</p>
                   <p className="text-2xl font-bold text-gray-900 mt-1">-</p>
                 </div>
-                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                <div className="w-12 h-12 bg-teal-100 rounded-lg flex items-center justify-center">
                   <span className="text-xl">📊</span>
                 </div>
               </div>
             </div>
           </Card>
 
-          <Card>
+          <Card className="bg-gradient-to-br from-teal-50 to-white border border-teal-100">
             <div className="p-4">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600">Pendapatan Hari Ini</p>
                   <p className="text-2xl font-bold text-gray-900 mt-1">-</p>
                 </div>
-                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                <div className="w-12 h-12 bg-teal-100 rounded-lg flex items-center justify-center">
                   <span className="text-xl">💵</span>
                 </div>
               </div>
             </div>
           </Card>
 
-          <Card>
+          <Card className="bg-gradient-to-br from-teal-50 to-white border border-teal-100">
             <div className="p-4">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600">Pesanan Aktif</p>
                   <p className="text-2xl font-bold text-gray-900 mt-1">-</p>
                 </div>
-                <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                <div className="w-12 h-12 bg-teal-100 rounded-lg flex items-center justify-center">
                   <span className="text-xl">⏱️</span>
                 </div>
               </div>
