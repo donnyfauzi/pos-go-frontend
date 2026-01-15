@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { menuService } from '../../services/menuService';
 import { categoryService } from '../../services/categoryService';
 import Card from '../../components/UI/Card';
@@ -11,6 +12,7 @@ interface CartItem {
 }
 
 export default function CustomerMenu() {
+  const navigate = useNavigate();
   const [menus, setMenus] = useState<Menu[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -115,9 +117,9 @@ export default function CustomerMenu() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-200">
       {/* Header */}
-      <header className="bg-white shadow-md sticky top-0 z-50">
+      <header className="bg-gray-100 shadow-md sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div>
@@ -389,15 +391,15 @@ export default function CustomerMenu() {
                         Rp {formatCurrency(getTotalPrice())}
                       </span>
                     </div>
-                    <button
-                      className="w-full py-3 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors font-medium"
-                      onClick={() => {
-                        // TODO: Navigate to checkout
-                        console.log('Checkout:', cart);
-                      }}
-                    >
-                      Checkout
-                    </button>
+                        <button
+                          className="w-full py-3 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors font-medium"
+                          onClick={() => {
+                            setShowCart(false);
+                            navigate('/checkout', { state: { cart } });
+                          }}
+                        >
+                          Checkout
+                        </button>
                   </div>
                 </>
               )}

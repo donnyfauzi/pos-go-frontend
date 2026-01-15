@@ -8,6 +8,8 @@ import AuthInitializer from './components/AuthInitializer';
 import ListMenu from './pages/admin/ListMenu';
 import ListUser from './pages/admin/ListUser';
 import CustomerMenu from './pages/customer/Menu';
+import Checkout from './pages/customer/Checkout';
+import OrderSuccess from './pages/customer/OrderSuccess';
 
 function App() {
   return (
@@ -18,6 +20,8 @@ function App() {
         <Route path="/register" element={<Navigate to="/admin/user" replace />} />
         {/* Public Routes - Customer */}
         <Route path="/menu" element={<CustomerMenu />} />
+        <Route path="/checkout" element={<Checkout />} />
+        <Route path="/order-success" element={<OrderSuccess />} />
         <Route
           path="/change-password"
           element={

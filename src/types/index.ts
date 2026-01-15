@@ -97,4 +97,63 @@ export interface GetUsersResponse {
     success: boolean;
     message: string;
     data: User[];
-  }
+}
+
+// Transaction Types
+export interface TransactionItem {
+    id: string;
+    menu_id: string;
+    menu_name: string;
+    menu_price: number;
+    quantity: number;
+    subtotal: number;
+}
+
+export interface Transaction {
+    id: string;
+    customer_name: string;
+    customer_phone: string;
+    customer_email?: string;
+    table_number?: number;
+    total_amount: number;
+    payment_method: 'cash' | 'credit_card' | 'debit_card' | 'e_wallet';
+    payment_status: 'pending' | 'paid' | 'cancelled';
+    order_status: 'pending' | 'processing' | 'completed' | 'cancelled';
+    notes?: string;
+    items: TransactionItem[];
+    created_at: string;
+    updated_at: string;
+}
+
+export interface CreateTransactionItemRequest {
+    menu_id: string;
+    quantity: number;
+}
+
+export interface CreateTransactionRequest {
+    customer_name: string;
+    customer_phone: string;
+    customer_email?: string;
+    table_number?: number;
+    payment_method: 'cash' | 'credit_card' | 'debit_card' | 'e_wallet';
+    notes?: string;
+    items: CreateTransactionItemRequest[];
+}
+
+export interface CreateTransactionResponse {
+    success: boolean;
+    message: string;
+    data: Transaction;
+}
+
+export interface GetTransactionsResponse {
+    success: boolean;
+    message: string;
+    data: Transaction[];
+}
+
+export interface GetTransactionResponse {
+    success: boolean;
+    message: string;
+    data: Transaction;
+}
