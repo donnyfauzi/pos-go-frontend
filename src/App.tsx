@@ -10,6 +10,7 @@ import ListUser from './pages/admin/ListUser';
 import CustomerMenu from './pages/customer/Menu';
 import Checkout from './pages/customer/Checkout';
 import OrderSuccess from './pages/customer/OrderSuccess';
+import PaymentPending from './pages/customer/PaymentPending';
 
 function App() {
   return (
@@ -21,7 +22,8 @@ function App() {
         {/* Public Routes - Customer */}
         <Route path="/menu" element={<CustomerMenu />} />
         <Route path="/checkout" element={<Checkout />} />
-        <Route path="/order-success" element={<OrderSuccess />} />
+        <Route path="/order-success/:id" element={<OrderSuccess />} />
+        <Route path="/payment-pending/:id" element={<PaymentPending />} />
         <Route
           path="/change-password"
           element={

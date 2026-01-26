@@ -16,6 +16,7 @@ export default function AuthInitializer({ children }: { children: ReactNode }) {
         }
       } catch (error) {
         // Token tidak valid atau tidak ada - biarkan user null
+        // Error 401 di network tab adalah normal untuk public pages
         setUser(null);
       } finally {
         setIsLoading(false);

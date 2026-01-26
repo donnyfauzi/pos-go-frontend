@@ -41,7 +41,7 @@ export default function CustomerMenu() {
   // Fetch categories
   const fetchCategories = async () => {
     try {
-      const response = await categoryService.getAllCategories();
+      const response = await categoryService.getPublicCategories();
       if (response.success && response.data) {
         setCategories(response.data);
       }

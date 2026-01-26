@@ -1,23 +1,61 @@
-import { useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import Card from '../../components/UI/Card';
 import Button from '../../components/UI/Button';
 import { CheckCircle2, Home } from 'lucide-react';
-import type { Transaction } from '../../types';
+import { getTransactionById, type TransactionResponse } from '../../services/transactionService';
 
 export default function OrderSuccess() {
   const navigate = useNavigate();
-  const location = useLocation();
-  const transaction: Transaction | undefined = location.state?.transaction;
+  const { id } = useParams<{ id: string }>();
+  const [transaction, setTransaction] = useState<TransactionResponse | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!transaction) {
-      navigate('/menu');
-    }
-  }, [transaction, navigate]);
+    const fetchTransaction = async () => {
+      if (!id) {
+        navigate('/menu');
+        return;
+      }
 
-  if (!transaction) {
-    return null;
+      try {
+        const data = await getTransactionById(id);
+        setTransaction(data);
+      } catch (err) {
+        console.error('Error fetching transaction:', err);
+        setError('Gagal memuat data transaksi');
+        setTimeout(() => navigate('/menu'), 2000);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchTransaction();
+  }, [id, navigate]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-200 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Memuat data transaksi...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !transaction) {
+    return (
+      <div className="min-h-screen bg-gray-200 flex items-center justify-center">
+        <Card className="max-w-md">
+          <div className="text-center">
+            <p className="text-red-600 mb-4">{error || 'Transaksi tidak ditemukan'}</p>
+            <Button onClick={() => navigate('/menu')}>Kembali ke Menu</Button>
+          </div>
+        </Card>
+      </div>
+    );
   }
 
   const formatCurrency = (amount: number) => {
@@ -134,11 +172,21 @@ export default function OrderSuccess() {
             </div>
 
             {/* Total Amount */}
-            <div className="flex justify-between items-center mb-6">
-              <p className="text-lg font-bold text-gray-900">Total</p>
-              <p className="text-2xl font-bold text-teal-600">
-                Rp {formatCurrency(transaction.total_amount)}
-              </p>
+            <div className="space-y-2 mb-6">
+              <div className="flex justify-between items-center text-gray-700">
+                <p>Subtotal</p>
+                <p className="font-medium">Rp {formatCurrency(transaction.subtotal)}</p>
+              </div>
+              <div className="flex justify-between items-center text-gray-700">
+                <p>PPN 10%</p>
+                <p className="font-medium">Rp {formatCurrency(transaction.tax)}</p>
+              </div>
+              <div className="flex justify-between items-center pt-3 border-t border-gray-300">
+                <p className="text-lg font-bold text-gray-900">Total Pembayaran</p>
+                <p className="text-2xl font-bold text-teal-600">
+                  Rp {formatCurrency(transaction.total_amount)}
+                </p>
+              </div>
             </div>
 
             {/* Notes */}

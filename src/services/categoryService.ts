@@ -17,10 +17,18 @@ export interface CreateCategoryResponse {
 }
 
 export const categoryService = {
+  // Admin - get all categories (protected)
   getAllCategories: async (): Promise<GetCategoriesResponse> => {
     const response = await api.get<GetCategoriesResponse>('/category');
     return response.data;
   },
+
+  // Public - get all categories (untuk customer)
+  getPublicCategories: async (): Promise<GetCategoriesResponse> => {
+    const response = await api.get<GetCategoriesResponse>('/category/public');
+    return response.data;
+  },
+
   createCategory: async (data: CreateCategoryRequest): Promise<CreateCategoryResponse> => {
     const response = await api.post<CreateCategoryResponse>('/category', data);
     return response.data;

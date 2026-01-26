@@ -1,36 +1,47 @@
 import api from './api';
-import type {
-  CreateTransactionRequest,
-  CreateTransactionResponse,
-  GetTransactionsResponse,
-  GetTransactionResponse,
-} from '../types';
 
-export const transactionService = {
-  createTransaction: async (data: CreateTransactionRequest): Promise<CreateTransactionResponse> => {
-    const response = await api.post<CreateTransactionResponse>('/transaction', data);
-    return response.data;
-  },
+export interface CreateTransactionRequest {
+  customer_name: string;
+  customer_phone: string;
+  customer_email?: string;
+  table_number?: number;
+  payment_method: 'cash' | 'credit_card' | 'debit_card' | 'e_wallet';
+  notes?: string;
+  items: {
+    menu_id: string;
+    quantity: number;
+  }[];
+}
 
-  getAllTransactions: async (): Promise<GetTransactionsResponse> => {
-    const response = await api.get<GetTransactionsResponse>('/transaction');
-    return response.data;
-  },
+export interface TransactionResponse {
+  id: string;
+  customer_name: string;
+  customer_phone: string;
+  customer_email: string;
+  table_number?: number;
+  subtotal: number;      // Total sebelum pajak
+  tax: number;           // Pajak PPN 10%
+  total_amount: number;  // Total setelah pajak
+  payment_method: string;
+  payment_status: string;
+  order_status: string;
+  notes: string;
+  expired_at?: string;  // Waktu kadaluarsa
+  snap_token?: string;  // Untuk non-cash
+  snap_url?: string;    // Untuk non-cash
+  items: any[];
+  created_at: string;
+  updated_at: string;
+}
 
-  getTransactionById: async (id: string): Promise<GetTransactionResponse> => {
-    const response = await api.get<GetTransactionResponse>(`/transaction/${id}`);
-    return response.data;
-  },
+export const createTransaction = async (
+  data: CreateTransactionRequest
+): Promise<TransactionResponse> => {
+  const response = await api.post('/transaction', data);
+  return response.data.data;
+};
 
-  updateTransactionStatus: async (
-    id: string,
-    paymentStatus?: string,
-    orderStatus?: string
-  ): Promise<GetTransactionResponse> => {
-    const response = await api.put<GetTransactionResponse>(`/transaction/${id}/status`, {
-      payment_status: paymentStatus,
-      order_status: orderStatus,
-    });
-    return response.data;
-  },
+export const getTransactionById = async (id: string): Promise<TransactionResponse> => {
+  const response = await api.get(`/transaction/${id}`);
+  return response.data.data;
 };
