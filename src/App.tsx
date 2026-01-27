@@ -7,6 +7,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import AuthInitializer from './components/AuthInitializer';
 import ListMenu from './pages/admin/ListMenu';
 import ListUser from './pages/admin/ListUser';
+import ListPromo from './pages/admin/ListPromo';
 import CustomerMenu from './pages/customer/Menu';
 import Checkout from './pages/customer/Checkout';
 import OrderSuccess from './pages/customer/OrderSuccess';
@@ -61,6 +62,14 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={['admin']}>
               <ListUser />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/promo"
+          element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <ListPromo />
             </ProtectedRoute>
           }
         />

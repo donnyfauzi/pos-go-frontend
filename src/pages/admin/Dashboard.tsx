@@ -3,9 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import Card from '../../components/UI/Card';
 import Dropdown from '../../components/UI/Dropdown';
-import { Lock, LogOut, User as UserIcon, UtensilsCrossed, Users, Menu, FileText, CreditCard, DollarSign, ArrowRight } from 'lucide-react';
+import { Lock, LogOut, User as UserIcon, UtensilsCrossed, Users, Menu, FileText, CreditCard, DollarSign, ArrowRight, TrendingUp } from 'lucide-react';
 import { menuService } from '../../services/menuService';
 import { authService } from '../../services/authService';
+import { getAllPromos } from '../../services/promoService';
 
 export default function AdminDashboard() {
   const { user, logout } = useAuthStore();
@@ -14,6 +15,8 @@ export default function AdminDashboard() {
   const [isLoadingMenu, setIsLoadingMenu] = useState(true);
   const [totalUser, setTotalUser] = useState<number>(0);
   const [isLoadingUser, setIsLoadingUser] = useState(true);
+  const [totalPromo, setTotalPromo] = useState<number>(0);
+  const [isLoadingPromo, setIsLoadingPromo] = useState(true);
 
   const handleLogout = () => {
     logout();
@@ -56,6 +59,23 @@ export default function AdminDashboard() {
     };
 
     fetchTotalUser();
+  }, []);
+
+  // Fetch total promo
+  useEffect(() => {
+    const fetchTotalPromo = async () => {
+      try {
+        const promos = await getAllPromos();
+        setTotalPromo(promos.length);
+      } catch (err) {
+        // Silent fail - tetap tampilkan 0 jika error
+        setTotalPromo(0);
+      } finally {
+        setIsLoadingPromo(false);
+      }
+    };
+
+    fetchTotalPromo();
   }, []);
 
   return (
@@ -203,10 +223,52 @@ export default function AdminDashboard() {
           </div>
         </div>
 
+        {/* Stats Cards Section - Promo */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 mb-8">
+          <div className="bg-gradient-to-br from-teal-600 to-teal-700 rounded-lg shadow-lg border-0">
+            <div className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-white/90">Total Promo Aktif</p>
+                  <p className="text-3xl font-bold text-white mt-2">
+                    {isLoadingPromo ? '-' : totalPromo}
+                  </p>
+                  <p className="text-xs text-white/70 mt-1">Promo yang tersedia</p>
+                </div>
+                <div className="w-14 h-14 bg-white/20 rounded-lg flex items-center justify-center">
+                  <TrendingUp size={28} className="text-white" />
+                </div>
+              </div>
+              <button
+                onClick={() => navigate('/admin/promo')}
+                className="mt-4 text-white hover:text-white/80 text-sm font-medium flex items-center gap-2"
+              >
+                Kelola Promo
+                <ArrowRight size={18} />
+              </button>
+            </div>
+          </div>
+
+          <div className="bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg shadow-lg border-0">
+            <div className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-white/90">Menu Terlaris</p>
+                  <p className="text-3xl font-bold text-white mt-2">-</p>
+                  <p className="text-xs text-white/70 mt-1">Coming soon</p>
+                </div>
+                <div className="w-14 h-14 bg-white/20 rounded-lg flex items-center justify-center">
+                  <UtensilsCrossed size={28} className="text-white" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Quick Actions */}
         <Card>
           <h3 className="text-xl font-bold text-gray-900 mb-4">Quick Actions</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <button 
               onClick={() => navigate('/admin/menu')}
               className="p-4 bg-teal-600 hover:bg-teal-700 rounded-lg transition-colors text-left w-full flex items-center gap-3 shadow-md hover:shadow-lg"
@@ -229,6 +291,18 @@ export default function AdminDashboard() {
               <div>
                 <p className="font-medium text-white">Kelola User</p>
                 <p className="text-sm text-white/80 mt-0.5">Lihat dan kelola semua user kasir</p>
+              </div>
+            </button>
+            <button
+              onClick={() => navigate('/admin/promo')}
+              className="p-4 bg-teal-600 hover:bg-teal-700 rounded-lg transition-colors text-left w-full flex items-center gap-3 shadow-md hover:shadow-lg"
+            >
+              <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                <TrendingUp size={20} className="text-white" />
+              </div>
+              <div>
+                <p className="font-medium text-white">Kelola Promo</p>
+                <p className="text-sm text-white/80 mt-0.5">Kelola promo dan diskon</p>
               </div>
             </button>
             <button 
