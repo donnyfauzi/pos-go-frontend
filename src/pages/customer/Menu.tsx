@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { menuService } from '../../services/menuService';
 import { categoryService } from '../../services/categoryService';
 import Card from '../../components/UI/Card';
-import { Search, ShoppingCart, Plus, Minus, ChevronLeft, ChevronRight, Facebook, Instagram, Twitter, Youtube } from 'lucide-react';
+import { Search, ShoppingCart, Plus, Minus, ChevronLeft, ChevronRight, Facebook, Instagram, Twitter, Youtube, ChefHat, ShoppingBag, CheckCircle, Sparkles } from 'lucide-react';
 import type { Menu, Category } from '../../types';
 
 interface CartItem {
@@ -147,35 +147,107 @@ export default function CustomerMenu() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Welcome Card */}
-        <Card className="mb-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex-1">
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                Selamat Datang di POS Go Restaurant
-              </h2>
-              <p className="text-sm text-gray-600 mb-3">
-                Silahkan pilih menu yang Anda inginkan dan lakukan checkout untuk memesan
-              </p>
-              <div className="text-xs text-gray-500 space-y-1">
-                <p className="font-medium text-gray-700 mb-2">Cara Memesan:</p>
-                <ol className="list-decimal list-inside space-y-1 ml-2">
-                  <li>Pilih menu yang ingin dipesan</li>
-                  <li>Klik tombol "Tambah" untuk menambahkan ke keranjang</li>
-                  <li>Klik tombol "Keranjang" di header untuk melihat pesanan</li>
-                  <li>Klik "Checkout" untuk menyelesaikan pesanan</li>
-                </ol>
+        {/* Welcome Card - Modern Design */}
+        <div className="mb-6 relative overflow-hidden rounded-xl shadow-lg">
+          {/* Gradient Background */}
+          <div className="absolute inset-0 bg-gradient-to-br from-teal-500 via-teal-600 to-emerald-600"></div>
+          
+          {/* Pattern Overlay */}
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute inset-0" style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+            }}></div>
+          </div>
+
+          <div className="relative p-8 md:p-10">
+            <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8">
+              {/* Left Content */}
+              <div className="flex-1 text-white">
+                {/* Welcome Header */}
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
+                    <ChefHat size={28} className="text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-3xl md:text-4xl font-bold mb-1">
+                      Selamat Datang!
+                    </h2>
+                    <p className="text-teal-100 text-sm md:text-base">
+                      POS Go Restaurant
+                    </p>
+                  </div>
+                </div>
+
+                <p className="text-teal-50 text-base md:text-lg mb-6 max-w-2xl">
+                  Silahkan pilih menu yang Anda inginkan dan lakukan checkout untuk memesan. Nikmati pengalaman berbelanja yang mudah dan menyenangkan!
+                </p>
+
+                {/* Cara Memesan - Clean Design tanpa Background Card */}
+                <div className="mt-8">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Sparkles size={20} className="text-yellow-300" />
+                    <h3 className="text-lg font-bold text-white">Cara Memesan</h3>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {/* Step 1 */}
+                    <div className="flex items-start gap-3">
+                      <div className="flex-shrink-0 w-8 h-8 bg-white/20 rounded-full flex items-center justify-center border-2 border-white/30">
+                        <span className="text-white font-bold text-sm">1</span>
+                      </div>
+                      <div>
+                        <p className="text-white font-medium text-sm">Pilih Menu</p>
+                        <p className="text-teal-100 text-xs mt-1">Pilih menu yang ingin dipesan</p>
+                      </div>
+                    </div>
+
+                    {/* Step 2 */}
+                    <div className="flex items-start gap-3">
+                      <div className="flex-shrink-0 w-8 h-8 bg-white/20 rounded-full flex items-center justify-center border-2 border-white/30">
+                        <span className="text-white font-bold text-sm">2</span>
+                      </div>
+                      <div>
+                        <p className="text-white font-medium text-sm">Tambah ke Keranjang</p>
+                        <p className="text-teal-100 text-xs mt-1">Klik tombol "Tambah"</p>
+                      </div>
+                    </div>
+
+                    {/* Step 3 */}
+                    <div className="flex items-start gap-3">
+                      <div className="flex-shrink-0 w-8 h-8 bg-white/20 rounded-full flex items-center justify-center border-2 border-white/30">
+                        <span className="text-white font-bold text-sm">3</span>
+                      </div>
+                      <div>
+                        <p className="text-white font-medium text-sm">Lihat Keranjang</p>
+                        <p className="text-teal-100 text-xs mt-1">Klik tombol "Keranjang" di header</p>
+                      </div>
+                    </div>
+
+                    {/* Step 4 */}
+                    <div className="flex items-start gap-3">
+                      <div className="flex-shrink-0 w-8 h-8 bg-white/20 rounded-full flex items-center justify-center border-2 border-white/30">
+                        <CheckCircle size={16} className="text-white" />
+                      </div>
+                      <div>
+                        <p className="text-white font-medium text-sm">Checkout</p>
+                        <p className="text-teal-100 text-xs mt-1">Selesaikan pesanan Anda</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Illustration - Clean tanpa Background Card */}
+              <div className="hidden lg:block flex-shrink-0">
+                <img
+                  src="/logo-public.png"
+                  alt="Welcome"
+                  className="h-48 w-auto drop-shadow-2xl"
+                />
               </div>
             </div>
-            <div className="hidden md:block ml-6">
-              <img
-                src="/logo-public.png"
-                alt="Welcome"
-                className="h-36 w-auto"
-              />
-            </div>
           </div>
-        </Card>
+        </div>
 
         {/* Search and Filter */}
         <Card className="mb-6">

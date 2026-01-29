@@ -7,6 +7,7 @@ export interface CreateTransactionRequest {
   table_number?: number;
   payment_method: 'cash' | 'credit_card' | 'debit_card' | 'e_wallet';
   notes?: string;
+  promo_code?: string;
   items: {
     menu_id: string;
     quantity: number;

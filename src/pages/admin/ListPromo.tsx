@@ -291,7 +291,7 @@ export default function ListPromo() {
             <>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {paginatedPromos.map((promo) => (
-                <Card key={promo.id} className="relative">
+                <Card key={promo.id} className="relative flex flex-col h-full">
                   {/* Status Badge */}
                   <div className="absolute top-4 right-4">
                     <span
@@ -315,10 +315,14 @@ export default function ListPromo() {
                   {/* Name */}
                   <h3 className="text-lg font-bold text-gray-900 mb-2">{promo.name}</h3>
 
-                  {/* Description */}
-                  {promo.description && (
-                    <p className="text-sm text-gray-600 mb-4">{promo.description}</p>
-                  )}
+                  {/* Description - dengan min-height untuk konsistensi */}
+                  <div className="mb-4 min-h-[3.5rem]">
+                    {promo.description ? (
+                      <p className="text-sm text-gray-600 line-clamp-3">{promo.description}</p>
+                    ) : (
+                      <p className="text-sm text-gray-400 italic">Tidak ada deskripsi</p>
+                    )}
+                  </div>
 
                   {/* Value */}
                   <div className="bg-gradient-to-r from-teal-50 to-blue-50 rounded-lg p-3 mb-4">
@@ -360,8 +364,8 @@ export default function ListPromo() {
                     </span>
                   </div>
 
-                  {/* Actions */}
-                  <div className="flex gap-2">
+                  {/* Actions - menggunakan mt-auto agar selalu di bawah */}
+                  <div className="flex gap-2 mt-auto">
                     <Button
                       onClick={() => handleEditClick(promo)}
                       variant="secondary"

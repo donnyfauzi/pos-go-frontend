@@ -72,6 +72,12 @@ export const deletePromo = async (id: string): Promise<void> => {
   await api.delete(`/promo/${id}`);
 };
 
+// Get active promos (Public)
+export const getActivePromos = async (): Promise<Promo[]> => {
+  const response = await api.get('/promo/active');
+  return response.data.data;
+};
+
 // Validate promo (Public)
 export const validatePromo = async (data: ValidatePromoRequest): Promise<ValidatePromoResponse> => {
   const response = await api.post('/promo/validate', data);
