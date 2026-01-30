@@ -7,6 +7,7 @@ export interface UserFormData {
   name: string;
   email: string;
   password: string;
+  role: 'kasir' | 'koki';
 }
 
 interface UserFormProps {
@@ -30,6 +31,7 @@ export default function UserForm({
       name: '',
       email: '',
       password: '',
+      role: 'kasir',
     },
   });
 
@@ -86,11 +88,36 @@ export default function UserForm({
         })}
       />
 
+      {/* Role selector */}
+      <div className="space-y-2">
+        <p className="text-xs font-semibold text-gray-700">Role User *</p>
+        <div className="flex gap-4">
+          <label className="inline-flex items-center gap-2 text-sm text-gray-700">
+            <input
+              type="radio"
+              value="kasir"
+              {...register('role', { required: true })}
+              className="h-4 w-4 text-teal-600 border-gray-300 focus:ring-teal-500"
+            />
+            <span>Kasir</span>
+          </label>
+          <label className="inline-flex items-center gap-2 text-sm text-gray-700">
+            <input
+              type="radio"
+              value="koki"
+              {...register('role', { required: true })}
+              className="h-4 w-4 text-teal-600 border-gray-300 focus:ring-teal-500"
+            />
+            <span>Koki</span>
+          </label>
+        </div>
+      </div>
+
       {/* Info Box */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
         <p className="text-sm text-blue-800">
-          <strong>Info:</strong> User yang dibuat akan memiliki role <strong>Kasir</strong>. 
-          Hanya admin yang dapat melakukan registrasi user baru.
+          <strong>Info:</strong> Hanya admin yang dapat membuat user baru. 
+          Pilih role <strong>Kasir</strong> untuk pengguna kasir, atau <strong>Koki</strong> untuk pengguna dapur.
         </p>
       </div>
 

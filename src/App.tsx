@@ -3,6 +3,7 @@ import Login from './pages/auth/Login';
 import ChangePassword from './pages/auth/ChangePassword';
 import AdminDashboard from './pages/admin/Dashboard';
 import KasirDashboard from './pages/kasir/Dashboard';
+import KokiDashboard from './pages/koki/Dashboard';
 import ProtectedRoute from './components/ProtectedRoute';
 import AuthInitializer from './components/AuthInitializer';
 import ListMenu from './pages/admin/ListMenu';
@@ -46,6 +47,14 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={['kasir']}>
               <KasirDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/koki/dashboard"
+          element={
+            <ProtectedRoute allowedRoles={['koki'] as any}>
+              <KokiDashboard />
             </ProtectedRoute>
           }
         />

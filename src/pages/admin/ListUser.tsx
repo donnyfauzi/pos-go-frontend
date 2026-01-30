@@ -82,7 +82,6 @@ export default function ListUser() {
     try {
       const response = await authService.register({
         ...data,
-        role: 'kasir',
       });
       setSuccess(response.message || 'User berhasil didaftarkan');
       setIsModalOpen(false);

@@ -121,13 +121,13 @@ export default function OrderSuccess() {
                 <p className="text-sm text-gray-600 mb-1">Telepon</p>
                 <p className="font-medium text-gray-900">{transaction.customer_phone}</p>
               </div>
-              {transaction.customer_email && (
-                <div>
-                  <p className="text-sm text-gray-600 mb-1">Email</p>
-                  <p className="font-medium text-gray-900">{transaction.customer_email}</p>
-                </div>
-              )}
-              {transaction.table_number && (
+              <div>
+                <p className="text-sm text-gray-600 mb-1">Tipe Pesanan</p>
+                <p className="font-medium text-gray-900">
+                  {transaction.order_type === 'dine_in' ? 'Makan di tempat' : 'Take away'}
+                </p>
+              </div>
+              {transaction.order_type === 'dine_in' && transaction.table_number && (
                 <div>
                   <p className="text-sm text-gray-600 mb-1">Nomor Meja</p>
                   <p className="font-medium text-gray-900">Meja {transaction.table_number}</p>

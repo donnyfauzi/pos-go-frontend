@@ -33,7 +33,7 @@ export default function Checkout() {
   const [formData, setFormData] = useState({
     customer_name: '',
     customer_phone: '',
-    customer_email: '',
+    order_type: 'dine_in' as 'dine_in' | 'take_away',
     table_number: '',
     payment_method: 'cash' as 'cash' | 'non_cash',
     notes: '',
@@ -133,6 +133,11 @@ export default function Checkout() {
       return;
     }
 
+    if (formData.order_type === 'dine_in' && !formData.table_number) {
+      setError('Nomor meja wajib diisi untuk makan di tempat');
+      return;
+    }
+
     if (cart.length === 0) {
       setError('Keranjang kosong');
       return;
@@ -144,7 +149,7 @@ export default function Checkout() {
       const requestData: CreateTransactionRequest = {
         customer_name: formData.customer_name,
         customer_phone: formData.customer_phone,
-        customer_email: formData.customer_email || undefined,
+        order_type: formData.order_type,
         table_number: formData.table_number ? parseInt(formData.table_number) : undefined,
         // Kirim 'e_wallet' untuk non_cash payment ke backend (Midtrans akan handle detail payment method)
         payment_method: formData.payment_method === 'cash' ? 'cash' : 'e_wallet',
@@ -339,13 +344,13 @@ export default function Checkout() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Form Section */}
           <div className="lg:col-span-2">
-            <form onSubmit={handleSubmit}>
+            <form id="checkout-form" onSubmit={handleSubmit}>
               {/* Customer Information */}
               <Card className="mb-6">
                 <h2 className="text-xl font-bold text-gray-900 mb-4">Informasi Pelanggan</h2>
                 <div className="space-y-4">
                   <Input
-                    label="Nama Lengkap"
+                    label="Nama Lengkap*"
                     name="customer_name"
                     value={formData.customer_name}
                     onChange={handleInputChange}
@@ -353,7 +358,7 @@ export default function Checkout() {
                     required
                   />
                   <Input
-                    label="Nomor Telepon"
+                    label="Nomor Telepon*"
                     name="customer_phone"
                     type="tel"
                     value={formData.customer_phone}
@@ -361,21 +366,57 @@ export default function Checkout() {
                     placeholder="08xxxxxxxxxx"
                     required
                   />
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Tipe Pesanan <span className="text-red-500">*</span>
+                    </label>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            order_type: 'dine_in',
+                          }))
+                        }
+                        className={`p-4 rounded-xl border-2 transition-all text-left ${
+                          formData.order_type === 'dine_in'
+                            ? 'border-teal-500 bg-teal-50 shadow-md'
+                            : 'border-gray-200 bg-white hover:border-gray-300'
+                        }`}
+                      >
+                        <div className="font-bold text-gray-900">Makan di tempat</div>
+                        <div className="text-xs text-gray-600 mt-1">Pesanan untuk dine-in (pakai nomor meja)</div>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            order_type: 'take_away',
+                            table_number: '', // clear meja
+                          }))
+                        }
+                        className={`p-4 rounded-xl border-2 transition-all text-left ${
+                          formData.order_type === 'take_away'
+                            ? 'border-teal-500 bg-teal-50 shadow-md'
+                            : 'border-gray-200 bg-white hover:border-gray-300'
+                        }`}
+                      >
+                        <div className="font-bold text-gray-900">Take away</div>
+                        <div className="text-xs text-gray-600 mt-1">Pesanan dibawa pulang (tanpa nomor meja)</div>
+                      </button>
+                    </div>
+                  </div>
                   <Input
-                    label="Email (Opsional)"
-                    name="customer_email"
-                    type="email"
-                    value={formData.customer_email}
-                    onChange={handleInputChange}
-                    placeholder="email@example.com"
-                  />
-                  <Input
-                    label="Nomor Meja (Opsional)"
+                    label={formData.order_type === 'dine_in' ? 'Nomor Meja' : 'Nomor Meja (Opsional)'}
                     name="table_number"
                     type="number"
                     value={formData.table_number}
                     onChange={handleInputChange}
                     placeholder="Contoh: 5"
+                    required={formData.order_type === 'dine_in'}
                   />
                 </div>
               </Card>
@@ -428,7 +469,7 @@ export default function Checkout() {
               </Card>
 
               {/* Promo Section */}
-              {activePromos.length > 0 && (
+              {(isLoadingPromos || activePromos.length > 0) && (
                 <Card className="mb-6">
                   <div className="flex items-center gap-2 mb-4">
                     <Tag className="text-teal-600" size={20} />
@@ -438,6 +479,12 @@ export default function Checkout() {
                   {promoError && (
                     <div className="mb-4">
                       <Alert type="error" message={promoError} />
+                    </div>
+                  )}
+
+                  {isLoadingPromos && activePromos.length === 0 && (
+                    <div className="py-6 text-center text-sm text-gray-500">
+                      Memuat promo...
                     </div>
                   )}
 
@@ -540,10 +587,6 @@ export default function Checkout() {
                   </div>
                 </div>
               )}
-
-              <Button type="submit" className="w-full" disabled={isSubmitting}>
-                {getButtonText()}
-              </Button>
             </form>
           </div>
 
@@ -593,6 +636,18 @@ export default function Checkout() {
                   <span>Total Pembayaran</span>
                   <span className="text-teal-600">Rp {formatCurrency(getTotalPrice())}</span>
                 </div>
+              </div>
+
+              {/* Submit Button moved here */}
+              <div className="mt-6 pt-4 border-t border-gray-200">
+                <Button
+                  type="submit"
+                  form="checkout-form"
+                  className="w-full"
+                  disabled={isSubmitting}
+                >
+                  {getButtonText()}
+                </Button>
               </div>
             </Card>
           </div>

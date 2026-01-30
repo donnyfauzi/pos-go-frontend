@@ -2,9 +2,11 @@ import { Navigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import type { ReactNode } from 'react';
 
+type AppRole = 'admin' | 'kasir' | 'koki';
+
 interface ProtectedRouteProps {
   children: ReactNode;
-  allowedRoles?: ('admin' | 'kasir')[];
+  allowedRoles?: AppRole[];
 }
 
 export default function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) {
@@ -17,7 +19,7 @@ export default function ProtectedRoute({ children, allowedRoles }: ProtectedRout
 
   // Jika ada allowedRoles, check role user
   if (allowedRoles && allowedRoles.length > 0) {
-    if (!allowedRoles.includes(user.role)) {
+    if (!allowedRoles.includes(user.role as AppRole)) {
       return <Navigate to="/login" replace />;
     }
   }

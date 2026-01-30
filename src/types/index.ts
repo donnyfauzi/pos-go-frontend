@@ -2,7 +2,7 @@ export interface User {
     id: string;
     name: string;
     email: string;
-    role: 'admin' | 'kasir';
+    role: 'admin' | 'kasir' | 'koki';
     CreatedAt?: string;
     UpdatedAt?: string;
 }
@@ -24,7 +24,7 @@ export interface RegisterRequest {
     name: string;
     email: string;
     password: string;
-    role: 'kasir';
+    role: 'kasir' | 'koki';
 }
 
 export interface RegisterResponse {
@@ -113,8 +113,10 @@ export interface Transaction {
     id: string;
     customer_name: string;
     customer_phone: string;
-    customer_email?: string;
+    order_type: 'dine_in' | 'take_away';
     table_number?: number;
+    promo_code?: string;
+    discount?: number;
     total_amount: number;
     payment_method: 'cash' | 'credit_card' | 'debit_card' | 'e_wallet';
     payment_status: 'pending' | 'paid' | 'cancelled';
@@ -133,10 +135,11 @@ export interface CreateTransactionItemRequest {
 export interface CreateTransactionRequest {
     customer_name: string;
     customer_phone: string;
-    customer_email?: string;
+    order_type: 'dine_in' | 'take_away';
     table_number?: number;
     payment_method: 'cash' | 'credit_card' | 'debit_card' | 'e_wallet';
     notes?: string;
+    promo_code?: string;
     items: CreateTransactionItemRequest[];
 }
 

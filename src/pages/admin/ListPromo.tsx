@@ -351,7 +351,9 @@ export default function ListPromo() {
                     <div className="flex justify-between">
                       <span className="text-gray-600">Penggunaan:</span>
                       <span className="font-medium">
-                        {promo.usage_limit > 0 ? `${promo.usage_count} / ${promo.usage_limit}` : '-'}
+                        {promo.usage_limit > 0
+                          ? `${promo.usage_count} / ${promo.usage_limit} (Sisa: ${Math.max(0, promo.usage_limit - promo.usage_count)})`
+                          : '-'}
                       </span>
                     </div>
                   </div>

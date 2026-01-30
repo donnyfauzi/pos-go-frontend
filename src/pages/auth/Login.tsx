@@ -28,12 +28,17 @@ export default function Login() {
       const response = await authService.login(data);
 
       if (response.success && response.data.user) {
-        setUser(response.data.user);
-        if (response.data.user.role === 'admin') {
+        const loggedInUser = response.data.user;
+        setUser(loggedInUser);
+
+        if (loggedInUser.role === 'admin') {
           navigate('/admin/dashboard');
-        } else if (response.data.user.role === 'kasir') {
+        } else if (loggedInUser.role === 'kasir') {
           navigate('/kasir/dashboard');
+        } else if (loggedInUser.role === 'koki') {
+          navigate('/koki/dashboard');
         } else {
+          // fallback kalau ada role lain yang belum di-handle
           navigate('/login');
         }
       }
