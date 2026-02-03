@@ -6,10 +6,11 @@ import Button from '../../components/UI/Button';
 import Dropdown from '../../components/UI/Dropdown';
 import Alert from '../../components/UI/Alert';
 import ConfirmDialog from '../../components/UI/ConfirmDialog';
-import { confirmCashPaid, getAllTransactions, updateOrderStatus, type TransactionResponse } from '../../services/transactionService';
+import DateTimeWidget from '../../components/UI/DateTimeWidget';
+import { cancelOrder, confirmCashPaid, getAllTransactions, updateOrderStatus, type TransactionResponse } from '../../services/transactionService';
 import { menuService } from '../../services/menuService';
 import type { Menu } from '../../types';
-import { Clock, CreditCard, HandCoins, Lock, LogOut, Phone, Store, ShoppingBag, User as UserIcon } from 'lucide-react';
+import { Clock, CreditCard, FileText, HandCoins, Lock, LogOut, Phone, Store, ShoppingBag, User as UserIcon } from 'lucide-react';
 
 export default function KasirDashboard() {
   const { user, logout } = useAuthStore();
@@ -22,6 +23,8 @@ export default function KasirDashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const [showCashConfirmOpen, setShowCashConfirmOpen] = useState(false);
   const [isConfirmingCash, setIsConfirmingCash] = useState(false);
+  const [showCancelConfirmOpen, setShowCancelConfirmOpen] = useState(false);
+  const [isCancelling, setIsCancelling] = useState(false);
   const [menuMap, setMenuMap] = useState<Record<string, Menu>>({});
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -185,6 +188,31 @@ export default function KasirDashboard() {
     }
   };
 
+  const handleOpenCancelConfirm = () => setShowCancelConfirmOpen(true);
+  const handleCloseCancelConfirm = () => {
+    if (!isCancelling) setShowCancelConfirmOpen(false);
+  };
+  const handleCancelOrder = async () => {
+    if (!selected) return;
+    setIsCancelling(true);
+    setError(null);
+    setSuccess(null);
+    try {
+      await cancelOrder(selected.id);
+      setShowCancelConfirmOpen(false);
+      setSuccess('Pesanan berhasil dibatalkan');
+      const data = await getAllTransactions();
+      const sorted = [...data].sort(
+        (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      );
+      setTransactions(sorted);
+    } catch (e: any) {
+      setError(e?.response?.data?.message || 'Gagal membatalkan pesanan');
+    } finally {
+      setIsCancelling(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-200">
       {/* Header */}
@@ -199,6 +227,7 @@ export default function KasirDashboard() {
               />
             </div>
             <div className="flex items-center gap-4">
+              <DateTimeWidget />
               <Dropdown
                 trigger={
                   <div className="flex items-center gap-3">
@@ -212,6 +241,11 @@ export default function KasirDashboard() {
                   </div>
                 }
                 items={[
+                  {
+                    label: 'Laporan & Settlement',
+                    icon: <FileText size={16} />,
+                    onClick: () => navigate('/kasir/laporan'),
+                  },
                   {
                     label: 'Ubah Password',
                     icon: <Lock size={16} />,
@@ -430,20 +464,31 @@ export default function KasirDashboard() {
                           variant="primary"
                           onClick={handleSendToKitchen}
                         >
-                          Kirim ke Dapur (Mulai Dimasak)
+                          Kirim ke Dapur 
                         </Button>
                       )}
                       {selected.order_status === 'ready' && selected.payment_status === 'paid' && (
                         <Button
                           className="w-full"
-                          variant="secondary"
+                          variant="primary"
                           onClick={handleMarkCompleted}
                         >
                           Tandai Selesai
                         </Button>
                       )}
+                      {(selected.order_status === 'pending' || selected.order_status === 'cooking' || selected.order_status === 'ready') && (
+                        <Button
+                          className="w-full mt-2"
+                          variant="danger"
+                          onClick={handleOpenCancelConfirm}
+                        >
+                          Batalkan Pesanan
+                        </Button>
+                      )}
                       {!(selected.order_status === 'pending' && selected.payment_status === 'paid') &&
-                        !(selected.order_status === 'ready' && selected.payment_status === 'paid') && (
+                        !(selected.order_status === 'ready' && selected.payment_status === 'paid') &&
+                        selected.order_status !== 'pending' &&
+                        selected.order_status !== 'ready' && (
                           <p className="text-xs text-gray-500">
                             Tidak ada aksi status yang tersedia untuk pesanan ini.
                           </p>
@@ -577,6 +622,17 @@ export default function KasirDashboard() {
         cancelText="Batal"
         variant="info"
         isLoading={isConfirmingCash}
+      />
+      <ConfirmDialog
+        isOpen={showCancelConfirmOpen}
+        onClose={handleCloseCancelConfirm}
+        onConfirm={handleCancelOrder}
+        title="Batalkan Pesanan"
+        message="Yakin ingin membatalkan pesanan ini? Pesanan akan pindah ke tab Batal dan tidak dapat diaktifkan kembali."
+        confirmText="Ya, Batalkan"
+        cancelText="Tidak"
+        variant="danger"
+        isLoading={isCancelling}
       />
     </div>
   );

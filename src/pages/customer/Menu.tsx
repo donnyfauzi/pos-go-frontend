@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { menuService } from '../../services/menuService';
 import { categoryService } from '../../services/categoryService';
 import Card from '../../components/UI/Card';
+import DateTimeWidget from '../../components/UI/DateTimeWidget';
 import { Search, ShoppingCart, Plus, Minus, ChevronLeft, ChevronRight, Facebook, Instagram, Twitter, Youtube, ChefHat, ShoppingBag, CheckCircle, Sparkles } from 'lucide-react';
 import type { Menu, Category } from '../../types';
 
@@ -129,8 +130,10 @@ export default function CustomerMenu() {
                 className="h-16 w-auto"
               />
             </div>
-            <button
-              onClick={() => setShowCart(true)}
+            <div className="flex items-center gap-4">
+              <DateTimeWidget />
+              <button
+                onClick={() => setShowCart(true)}
               className="relative flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
             >
               <ShoppingCart size={20} />
@@ -140,7 +143,8 @@ export default function CustomerMenu() {
                   {getTotalItems()}
                 </span>
               )}
-            </button>
+              </button>
+            </div>
           </div>
         </div>
       </header>

@@ -9,6 +9,7 @@ import Modal from '../../components/UI/Modal';
 import ConfirmDialog from '../../components/UI/ConfirmDialog';
 import PromoForm from '../../components/Forms/PromoForm';
 import Dropdown from '../../components/UI/Dropdown';
+import DateTimeWidget from '../../components/UI/DateTimeWidget';
 import { Plus, Edit2, Trash2, Calendar, TrendingUp, ArrowLeft, Lock, LogOut, User as UserIcon, Search, ChevronLeft, ChevronRight } from 'lucide-react';
 
 export default function ListPromo() {
@@ -164,6 +165,7 @@ export default function ListPromo() {
               />
             </div>
             <div className="flex items-center gap-4">
+              <DateTimeWidget />
               <Dropdown
                 trigger={
                   <div className="flex items-center gap-3">

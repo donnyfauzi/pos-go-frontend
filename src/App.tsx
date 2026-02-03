@@ -3,12 +3,14 @@ import Login from './pages/auth/Login';
 import ChangePassword from './pages/auth/ChangePassword';
 import AdminDashboard from './pages/admin/Dashboard';
 import KasirDashboard from './pages/kasir/Dashboard';
+import LaporanSettlement from './pages/kasir/LaporanSettlement';
 import KokiDashboard from './pages/koki/Dashboard';
 import ProtectedRoute from './components/ProtectedRoute';
 import AuthInitializer from './components/AuthInitializer';
 import ListMenu from './pages/admin/ListMenu';
 import ListUser from './pages/admin/ListUser';
 import ListPromo from './pages/admin/ListPromo';
+import AdminLaporan from './pages/admin/AdminLaporan';
 import CustomerMenu from './pages/customer/Menu';
 import Checkout from './pages/customer/Checkout';
 import OrderSuccess from './pages/customer/OrderSuccess';
@@ -51,6 +53,14 @@ function App() {
           }
         />
         <Route
+          path="/kasir/laporan"
+          element={
+            <ProtectedRoute allowedRoles={['kasir']}>
+              <LaporanSettlement />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/koki/dashboard"
           element={
             <ProtectedRoute allowedRoles={['koki'] as any}>
@@ -79,6 +89,14 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={['admin']}>
               <ListPromo />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/laporan"
+          element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <AdminLaporan />
             </ProtectedRoute>
           }
         />

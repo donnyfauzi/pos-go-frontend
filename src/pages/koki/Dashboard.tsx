@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import Card from '../../components/UI/Card';
+import DateTimeWidget from '../../components/UI/DateTimeWidget';
 import Dropdown from '../../components/UI/Dropdown';
 import Alert from '../../components/UI/Alert';
 import { getAllTransactions, updateOrderStatus, type TransactionResponse } from '../../services/transactionService';
@@ -115,6 +116,7 @@ export default function KokiDashboard() {
               />
             </div>
             <div className="flex items-center gap-4">
+              <DateTimeWidget />
               <Dropdown
                 trigger={
                   <div className="flex items-center gap-3">

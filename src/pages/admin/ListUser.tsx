@@ -9,6 +9,7 @@ import ConfirmDialog from '../../components/UI/ConfirmDialog';
 import UserForm from '../../components/Forms/UserForm';
 import Alert from '../../components/UI/Alert';
 import Dropdown from '../../components/UI/Dropdown';
+import DateTimeWidget from '../../components/UI/DateTimeWidget';
 import { Plus, Search, Trash2, ArrowLeft, Lock, LogOut, User as UserIcon } from 'lucide-react';
 import type { User } from '../../types';
 import type { UserFormData } from '../../components/Forms/UserForm';
@@ -161,6 +162,7 @@ export default function ListUser() {
               />
             </div>
             <div className="flex items-center gap-4">
+              <DateTimeWidget />
               <Dropdown
                 trigger={
                   <div className="flex items-center gap-3">

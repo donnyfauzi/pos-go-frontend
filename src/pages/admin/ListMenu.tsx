@@ -11,6 +11,7 @@ import MenuForm from '../../components/Forms/MenuForm';
 import CategoryForm from '../../components/Forms/CategoryForm';
 import Alert from '../../components/UI/Alert';
 import Dropdown from '../../components/UI/Dropdown';
+import DateTimeWidget from '../../components/UI/DateTimeWidget';
 import { Plus, Search, Edit, Trash2, ArrowLeft, ChevronLeft, ChevronRight, Tag, Lock, LogOut, User as UserIcon } from 'lucide-react';
 import type { Menu, Category } from '../../types';
 import type { MenuFormData } from '../../components/Forms/MenuForm';
@@ -242,6 +243,7 @@ export default function ListMenu() {
               />
             </div>
             <div className="flex items-center gap-4">
+              <DateTimeWidget />
               <Dropdown
                 trigger={
                   <div className="flex items-center gap-3">

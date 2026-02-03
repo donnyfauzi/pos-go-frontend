@@ -2,7 +2,9 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import Card from '../../components/UI/Card';
+import DateTimeWidget from '../../components/UI/DateTimeWidget';
 import Dropdown from '../../components/UI/Dropdown';
+import { getReportCharts, type ChartResponse } from '../../services/reportService';
 import { Lock, LogOut, User as UserIcon, UtensilsCrossed, Users, Menu, FileText, CreditCard, DollarSign, ArrowRight, TrendingUp } from 'lucide-react';
 import { menuService } from '../../services/menuService';
 import { authService } from '../../services/authService';
@@ -17,6 +19,8 @@ export default function AdminDashboard() {
   const [isLoadingUser, setIsLoadingUser] = useState(true);
   const [totalPromo, setTotalPromo] = useState<number>(0);
   const [isLoadingPromo, setIsLoadingPromo] = useState(true);
+  const [charts, setCharts] = useState<ChartResponse | null>(null);
+  const [isLoadingCharts, setIsLoadingCharts] = useState(true);
 
   const handleLogout = () => {
     logout();
@@ -78,6 +82,37 @@ export default function AdminDashboard() {
     fetchTotalPromo();
   }, []);
 
+  // Fetch data grafik (7 hari, 6 bulan)
+  useEffect(() => {
+    const fetchCharts = async () => {
+      try {
+        const data = await getReportCharts(7, 6);
+        setCharts(data);
+      } catch {
+        setCharts(null);
+      } finally {
+        setIsLoadingCharts(false);
+      }
+    };
+    fetchCharts();
+  }, []);
+
+  const formatCurrency = (n: number) => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  const maxDailySales = charts?.daily?.length ? Math.max(...charts.daily.map((d) => d.total_sales), 1) : 1;
+  const maxMonthlySales = charts?.monthly?.length ? Math.max(...charts.monthly.map((m) => m.total_sales), 1) : 1;
+  const totalTransaksi7Hari = charts?.daily?.reduce((s, d) => s + d.total_transactions, 0) ?? 0;
+  const totalPendapatan7Hari = charts?.daily?.reduce((s, d) => s + d.total_sales, 0) ?? 0;
+
+  const formatDateLabel = (dateStr: string) => {
+    const [, m, d] = dateStr.split('-');
+    return `${d}/${m}`;
+  };
+  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+  const formatMonthLabel = (monthStr: string) => {
+    const [y, m] = monthStr.split('-');
+    return `${monthNames[parseInt(m, 10) - 1]} ${y}`;
+  };
+
   return (
     <div className="min-h-screen bg-gray-200">
       {/* Header */}
@@ -92,6 +127,7 @@ export default function AdminDashboard() {
               />
             </div>
             <div className="flex items-center gap-4">
+              <DateTimeWidget />
               <Dropdown
                 trigger={
                   <div className="flex items-center gap-3">
@@ -146,14 +182,16 @@ export default function AdminDashboard() {
           </div>
         </Card>
 
-        {/* Stats Cards Section - Placeholder untuk fitur selanjutnya */}
+        {/* Stats Cards - Total Transaksi & Pendapatan (7 hari terakhir) */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <div className="bg-teal-600 rounded-lg shadow-lg border-0">
             <div className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-white/90">Total Transaksi</p>
-                  <p className="text-2xl font-bold text-white mt-1">-</p>
+                  <p className="text-sm font-medium text-white/90">Total Transaksi (7 hari)</p>
+                  <p className="text-2xl font-bold text-white mt-1">
+                    {isLoadingCharts ? '-' : totalTransaksi7Hari}
+                  </p>
                 </div>
                 <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
                   <CreditCard size={24} className="text-white" />
@@ -166,8 +204,10 @@ export default function AdminDashboard() {
             <div className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-white/90">Total Pendapatan</p>
-                  <p className="text-2xl font-bold text-white mt-1">-</p>
+                  <p className="text-sm font-medium text-white/90">Total Pendapatan (7 hari)</p>
+                  <p className="text-2xl font-bold text-white mt-1">
+                    {isLoadingCharts ? '-' : `Rp ${formatCurrency(totalPendapatan7Hari)}`}
+                  </p>
                 </div>
                 <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
                   <DollarSign size={24} className="text-white" />
@@ -265,6 +305,67 @@ export default function AdminDashboard() {
           </div>
         </div>
 
+        {/* Pemantauan Transaksi - Grafik */}
+        <Card className="mb-8">
+          <h3 className="text-xl font-bold text-gray-900 mb-2">Pemantauan Transaksi</h3>
+          <p className="text-sm text-gray-500 mb-4">7 hari terakhir dan 6 bulan terakhir</p>
+          {isLoadingCharts ? (
+            <p className="text-gray-500 py-8 text-center">Memuat grafik...</p>
+          ) : charts ? (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <div>
+                <h4 className="text-sm font-semibold text-gray-700 mb-3">Pendapatan per Hari (7 hari terakhir)</h4>
+                <div className="flex items-end gap-2 h-44">
+                  {charts.daily.map((d) => (
+                    <div key={d.date} className="flex-1 flex flex-col items-center justify-end h-full gap-1">
+                      <div className="flex-1 w-full flex flex-col justify-end min-h-0" style={{ minHeight: 0 }}>
+                        <div
+                          className="w-full bg-teal-500 rounded-t min-h-[4px] transition-all"
+                          style={{ height: `${Math.max(4, (d.total_sales / maxDailySales) * 100)}%` }}
+                          title={`${d.date}: Rp ${formatCurrency(d.total_sales)} (${d.total_transactions} transaksi)`}
+                        />
+                      </div>
+                      <span className="text-xs text-gray-500 truncate w-full text-center flex-shrink-0">
+                        {formatDateLabel(d.date)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <h4 className="text-sm font-semibold text-gray-700 mb-3">Pendapatan per Bulan (6 bulan terakhir)</h4>
+                <div className="flex items-end gap-2 h-44">
+                  {charts.monthly.map((m) => (
+                    <div key={m.month} className="flex-1 flex flex-col items-center justify-end h-full gap-1">
+                      <div className="flex-1 w-full flex flex-col justify-end min-h-0" style={{ minHeight: 0 }}>
+                        <div
+                          className="w-full bg-teal-600 rounded-t min-h-[4px] transition-all"
+                          style={{ height: `${Math.max(4, (m.total_sales / maxMonthlySales) * 100)}%` }}
+                          title={`${formatMonthLabel(m.month)}: Rp ${formatCurrency(m.total_sales)} (${m.total_transactions} transaksi)`}
+                        />
+                      </div>
+                      <span className="text-xs text-gray-500 truncate w-full text-center flex-shrink-0">
+                        {formatMonthLabel(m.month)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ) : (
+            <p className="text-gray-500 py-4">Data grafik tidak tersedia.</p>
+          )}
+          <div className="mt-4">
+            <button
+              onClick={() => navigate('/admin/laporan')}
+              className="text-teal-600 hover:text-teal-700 text-sm font-medium flex items-center gap-2"
+            >
+              Laporan lengkap
+              <ArrowRight size={16} />
+            </button>
+          </div>
+        </Card>
+
         {/* Quick Actions */}
         <Card>
           <h3 className="text-xl font-bold text-gray-900 mb-4">Quick Actions</h3>
@@ -305,7 +406,8 @@ export default function AdminDashboard() {
                 <p className="text-sm text-white/80 mt-0.5">Kelola promo dan diskon</p>
               </div>
             </button>
-            <button 
+            <button
+              onClick={() => navigate('/admin/laporan')}
               className="p-4 bg-teal-600 hover:bg-teal-700 rounded-lg transition-colors text-left w-full flex items-center gap-3 shadow-md hover:shadow-lg"
             >
               <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center flex-shrink-0">

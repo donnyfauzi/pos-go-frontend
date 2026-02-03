@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { createTransaction, type CreateTransactionRequest } from '../../services/transactionService';
 import { getActivePromos, validatePromo, type Promo } from '../../services/promoService';
 import Card from '../../components/UI/Card';
+import DateTimeWidget from '../../components/UI/DateTimeWidget';
 import Input from '../../components/UI/Input';
 import Button from '../../components/UI/Button';
 import Alert from '../../components/UI/Alert';
@@ -292,6 +293,7 @@ export default function Checkout() {
             <div>
               <img src="/logo-dashboard.png" alt="POS Go" className="h-16 w-auto" />
             </div>
+            <DateTimeWidget />
           </div>
         </div>
       </header>
