@@ -8,9 +8,12 @@ import Alert from '../../components/UI/Alert';
 import ConfirmDialog from '../../components/UI/ConfirmDialog';
 import DateTimeWidget from '../../components/UI/DateTimeWidget';
 import { cancelOrder, confirmCashPaid, getAllTransactions, updateOrderStatus, type TransactionResponse } from '../../services/transactionService';
+import { getReceipt, type ReceiptResponse } from '../../services/receiptService';
+import { getSettlement } from '../../services/reportService';
 import { menuService } from '../../services/menuService';
 import type { Menu } from '../../types';
-import { Clock, CreditCard, FileText, HandCoins, Lock, LogOut, Phone, Store, ShoppingBag, User as UserIcon } from 'lucide-react';
+import ReceiptPrintView from '../../components/Receipt/ReceiptPrintView';
+import { Clock, CreditCard, FileText, HandCoins, Lock, LogOut, Phone, Printer, Store, ShoppingBag, User as UserIcon, AlertCircle } from 'lucide-react';
 
 export default function KasirDashboard() {
   const { user, logout } = useAuthStore();
@@ -26,6 +29,10 @@ export default function KasirDashboard() {
   const [showCancelConfirmOpen, setShowCancelConfirmOpen] = useState(false);
   const [isCancelling, setIsCancelling] = useState(false);
   const [menuMap, setMenuMap] = useState<Record<string, Menu>>({});
+  const [receiptData, setReceiptData] = useState<ReceiptResponse | null>(null);
+  const [showReceiptModal, setShowReceiptModal] = useState(false);
+  const [isLoadingReceipt, setIsLoadingReceipt] = useState(false);
+  const [pendingSettlement, setPendingSettlement] = useState<{ date: string; expected_cash: number }[]>([]);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const handleLogout = () => {
@@ -125,6 +132,32 @@ export default function KasirDashboard() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Reminder: cek settlement kemarin & hari ini
+  useEffect(() => {
+    const dates: string[] = [];
+    const today = new Date();
+    dates.push(today.toISOString().slice(0, 10));
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    dates.push(yesterday.toISOString().slice(0, 10));
+
+    const check = async () => {
+      const pending: { date: string; expected_cash: number }[] = [];
+      for (const d of dates) {
+        try {
+          const res = await getSettlement(d);
+          if (res.expected_cash > 0 && !res.settlement) {
+            pending.push({ date: d, expected_cash: res.expected_cash });
+          }
+        } catch {
+          // ignore
+        }
+      }
+      setPendingSettlement(pending);
+    };
+    check();
+  }, []);
+
   const handleOpenCashConfirm = () => setShowCashConfirmOpen(true);
   const handleCloseCashConfirm = () => {
     if (!isConfirmingCash) setShowCashConfirmOpen(false);
@@ -213,6 +246,24 @@ export default function KasirDashboard() {
     }
   };
 
+  const handlePrintStruk = async () => {
+    if (!selected) return;
+    setShowReceiptModal(true);
+    setIsLoadingReceipt(true);
+    setReceiptData(null);
+    try {
+      const data = await getReceipt(selected.id);
+      setReceiptData(data);
+      setIsLoadingReceipt(false);
+      setTimeout(() => window.print(), 300);
+    } catch (e: unknown) {
+      setIsLoadingReceipt(false);
+      const err = e as { response?: { data?: { message?: string } } };
+      setError(err?.response?.data?.message || 'Gagal memuat data struk');
+      setShowReceiptModal(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-200">
       {/* Header */}
@@ -266,6 +317,31 @@ export default function KasirDashboard() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {pendingSettlement.length > 0 && (
+          <div className="mb-4 flex flex-wrap items-center gap-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-amber-800">
+            <AlertCircle size={22} className="flex-shrink-0 text-amber-600" />
+            <span className="flex-1">
+              Anda belum melakukan tutup kasir (settlement) untuk:{' '}
+              {pendingSettlement.map((p) => `${p.date} (Rp ${formatCurrency(p.expected_cash)})`).join(', ')}.
+              Silakan ke Laporan & Settlement untuk menyelesaikan.
+            </span>
+            <button
+              type="button"
+              onClick={() => navigate('/kasir/laporan')}
+              className="px-3 py-1.5 bg-amber-600 text-white rounded text-sm font-medium hover:bg-amber-700"
+            >
+              Ke Laporan & Settlement
+            </button>
+            <button
+              type="button"
+              onClick={() => setPendingSettlement([])}
+              className="text-amber-700 hover:text-amber-900 text-sm"
+              aria-label="Tutup"
+            >
+              ✕
+            </button>
+          </div>
+        )}
         {/* Welcome Card (samakan dengan Dashboard Admin) */}
         <Card className="mb-6">
           <div className="flex items-center justify-between">
@@ -603,6 +679,21 @@ export default function KasirDashboard() {
                         )}
                       </div>
                     )}
+
+                    {/* Print Struk - hanya untuk transaksi yang sudah dibayar (paid) */}
+                    {selected.payment_status === 'paid' && (
+                      <div className="mt-4 pt-4 border-t border-gray-200">
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          className="w-full flex items-center justify-center gap-2"
+                          onClick={handlePrintStruk}
+                        >
+                          <Printer size={18} />
+                          Print Struk
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -610,6 +701,30 @@ export default function KasirDashboard() {
           </Card>
         </div>
       </main>
+
+      {/* Modal struk untuk print */}
+      {showReceiptModal && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4 print:bg-white print:block">
+          <div className="bg-white rounded-xl shadow-xl max-h-[90vh] overflow-auto print:shadow-none print:max-h-none">
+            <div className="p-4 border-b flex justify-between items-center print:hidden">
+              <span className="font-semibold text-gray-900">Struk Pembelian</span>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowReceiptModal(false);
+                  setReceiptData(null);
+                }}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                Tutup
+              </button>
+            </div>
+            <div className="p-4">
+              <ReceiptPrintView data={receiptData} loading={isLoadingReceipt} />
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Konfirmasi tunai: pastikan pelanggan sudah benar-benar bayar tunai sebelum commit */}
       <ConfirmDialog

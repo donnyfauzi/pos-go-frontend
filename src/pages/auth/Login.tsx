@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { authService } from '../../services/authService';
 import { useAuthStore } from '../../store/authStore';
@@ -10,9 +10,20 @@ import type { LoginRequest } from '../../types';
 
 export default function Login() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { setUser } = useAuthStore();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>('');
+  const [sessionMessage, setSessionMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (searchParams.get('reason') === 'session_changed') {
+      setSessionMessage(
+        'Session berubah (misalnya login dari tab/window lain). Silakan login kembali dengan akun yang sesuai.'
+      );
+      setSearchParams({}, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
   const {
     register,
@@ -92,6 +103,14 @@ export default function Login() {
                   <p className="text-gray-500 mt-1 text-center">Silahkan login untuk melanjutkan</p>
                 </div>
 
+                {/* Session berubah (banyak tab / 1 device banyak role) */}
+                {sessionMessage && (
+                  <Alert
+                    type="info"
+                    message={sessionMessage}
+                    onClose={() => setSessionMessage(null)}
+                  />
+                )}
                 {/* Error Message */}
                 {error && (
                   <Alert

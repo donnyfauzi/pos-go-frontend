@@ -84,3 +84,23 @@ export const getReportCharts = async (
   const response = await api.get('/report/charts', { params: { days, months } });
   return response.data.data;
 };
+
+// Status settlement per kasir (admin)
+export interface SettlementStatusItem {
+  user_id: string;
+  user_name: string;
+  expected_cash: number;
+  settlement: SettlementResponse | null;
+}
+
+export interface GetSettlementStatusByDateResponse {
+  date: string;
+  items: SettlementStatusItem[];
+}
+
+export const getSettlementStatusByDate = async (
+  date: string
+): Promise<GetSettlementStatusByDateResponse> => {
+  const response = await api.get('/settlement/status-by-date', { params: { date } });
+  return response.data.data;
+};

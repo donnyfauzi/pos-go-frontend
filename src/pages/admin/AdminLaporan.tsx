@@ -8,11 +8,13 @@ import Alert from '../../components/UI/Alert';
 import {
   getReportByDate,
   getReportCharts,
+  getSettlementStatusByDate,
   type ReportResponse,
   type ReportTransactionItem,
   type ChartResponse,
+  type GetSettlementStatusByDateResponse,
 } from '../../services/reportService';
-import { ArrowLeft, FileText, Lock, LogOut, User as UserIcon, CreditCard, DollarSign, Calendar } from 'lucide-react';
+import { ArrowLeft, FileText, Lock, LogOut, User as UserIcon, CreditCard, DollarSign, Calendar, CheckCircle, AlertCircle } from 'lucide-react';
 
 function todayStr(): string {
   return new Date().toISOString().slice(0, 10);
@@ -30,6 +32,7 @@ export default function AdminLaporan() {
   const [date, setDate] = useState(todayStr());
   const [report, setReport] = useState<ReportResponse | null>(null);
   const [charts, setCharts] = useState<ChartResponse | null>(null);
+  const [settlementStatus, setSettlementStatus] = useState<GetSettlementStatusByDateResponse | null>(null);
   const [isLoadingReport, setIsLoadingReport] = useState(false);
   const [isLoadingCharts, setIsLoadingCharts] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -38,12 +41,17 @@ export default function AdminLaporan() {
     setIsLoadingReport(true);
     setError(null);
     try {
-      const res = await getReportByDate(d);
+      const [res, statusRes] = await Promise.all([
+        getReportByDate(d),
+        getSettlementStatusByDate(d),
+      ]);
       setReport(res);
+      setSettlementStatus(statusRes);
     } catch (e: unknown) {
       const err = e as { response?: { data?: { message?: string } } };
       setError(err?.response?.data?.message || 'Gagal memuat laporan');
       setReport(null);
+      setSettlementStatus(null);
     } finally {
       setIsLoadingReport(false);
     }
@@ -304,6 +312,67 @@ export default function AdminLaporan() {
             <p className="text-gray-500 py-4">Data grafik tidak tersedia.</p>
           )}
         </Card>
+
+        {/* Status Settlement per Kasir */}
+        {settlementStatus && settlementStatus.items.length > 0 && (
+          <Card className="mb-6">
+            <h3 className="text-xl font-bold text-gray-900 mb-4">Status Settlement per Kasir</h3>
+            <p className="text-sm text-gray-500 mb-4">
+              Daftar kasir yang punya transaksi pada tanggal ini dan status tutup kasir (settlement).
+            </p>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-gray-200 text-left text-gray-600">
+                    <th className="py-2 pr-4">Kasir</th>
+                    <th className="py-2 pr-4">Expected Tunai</th>
+                    <th className="py-2 pr-4">Status</th>
+                    <th className="py-2 pr-4">Actual Tunai</th>
+                    <th className="py-2 pr-4">Selisih</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {settlementStatus.items.map((item) => (
+                    <tr key={item.user_id} className="border-b border-gray-100">
+                      <td className="py-2 pr-4 font-medium text-gray-900">{item.user_name}</td>
+                      <td className="py-2 pr-4">Rp {formatCurrency(item.expected_cash)}</td>
+                      <td className="py-2 pr-4">
+                        {item.settlement ? (
+                          <span className="inline-flex items-center gap-1 text-green-700">
+                            <CheckCircle size={16} />
+                            Sudah
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 text-amber-700">
+                            <AlertCircle size={16} />
+                            Belum
+                          </span>
+                        )}
+                      </td>
+                      <td className="py-2 pr-4">
+                        {item.settlement != null
+                          ? `Rp ${formatCurrency(item.settlement.actual_cash)}`
+                          : '-'}
+                      </td>
+                      <td className="py-2 pr-4">
+                        {item.settlement != null
+                          ? (() => {
+                              const d = item.settlement.discrepancy;
+                              return (
+                                <span className={d !== 0 ? 'text-amber-700 font-medium' : ''}>
+                                  Rp {formatCurrency(d)}
+                                </span>
+                              );
+                            })()
+                          : '-'}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Card>
+        )}
 
         {/* Ringkasan per Kasir */}
         {report && kasirSummary.length > 0 && (

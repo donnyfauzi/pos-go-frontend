@@ -13,7 +13,7 @@ import {
   type ReportResponse,
   type GetSettlementResponse,
 } from '../../services/reportService';
-import { ArrowLeft, FileText, Lock, LogOut, User as UserIcon, Wallet } from 'lucide-react';
+import { ArrowLeft, FileText, Lock, LogOut, Printer, User as UserIcon, Wallet } from 'lucide-react';
 
 function todayStr(): string {
   const d = new Date();
@@ -104,10 +104,14 @@ export default function LaporanSettlement() {
   const discrepancy = Number.isNaN(actualNum) ? 0 : actualNum - expectedCash;
   const hasSettlement = !!settlementData?.settlement;
 
+  const handlePrint = () => {
+    window.print();
+  };
+
   return (
     <div className="min-h-screen bg-gray-200">
       {/* Header - konsisten dengan Dashboard Kasir */}
-      <header className="bg-white shadow-md">
+      <header className="bg-white shadow-md print:hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-0">
             <div>
@@ -146,22 +150,22 @@ export default function LaporanSettlement() {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 print:p-0">
         <button
           onClick={() => navigate('/kasir/dashboard')}
-          className="text-teal-800 hover:text-teal-600 text-sm font-medium flex items-center gap-2 mb-6"
+          className="text-teal-800 hover:text-teal-600 text-sm font-medium flex items-center gap-2 mb-6 print:hidden"
         >
           <ArrowLeft size={18} />
           Kembali ke Dashboard
         </button>
 
-        <div className="mb-6">
+        <div className="mb-6 print:hidden">
           <h1 className="text-2xl font-bold text-gray-900">Laporan & Settlement</h1>
-          <p className="text-gray-600 text-sm mt-1">Laporan harian dan tutup kasir</p>
+          <p className="text-gray-600 text-sm mt-1">Laporan harian dan tutup kasir (data per kasir yang login)</p>
         </div>
 
-        {/* Pilih periode */}
-        <Card className="mb-6">
+        {/* Pilih periode + Print */}
+        <Card className="mb-6 print:hidden">
           <div className="flex flex-wrap items-end gap-4">
             <div className="flex-1 min-w-[160px]">
               <label className="block text-sm font-medium text-gray-700 mb-1">Tanggal</label>
@@ -175,18 +179,33 @@ export default function LaporanSettlement() {
             <Button onClick={handleTampilkan} disabled={isLoading}>
               {isLoading ? 'Memuat...' : 'Tampilkan'}
             </Button>
+            <Button variant="secondary" onClick={handlePrint} disabled={!report || isLoading}>
+              <span className="inline-flex items-center gap-2">
+                <Printer size={18} />
+                Print
+              </span>
+            </Button>
           </div>
         </Card>
 
         {error && (
-          <Alert type="error" message={error} onClose={() => setError(null)} className="mb-4" />
+          <div className="print:hidden">
+            <Alert type="error" message={error} onClose={() => setError(null)} className="mb-4" />
+          </div>
         )}
         {success && (
-          <Alert type="success" message={success} onClose={() => setSuccess(null)} className="mb-4" />
+          <div className="print:hidden">
+            <Alert type="success" message={success} onClose={() => setSuccess(null)} className="mb-4" />
+          </div>
         )}
 
         {report && (
-          <>
+          <div className="laporan-settlement-print">
+            {/* Judul untuk print */}
+            <div className="hidden print:block mb-4 text-center">
+              <h2 className="text-xl font-bold text-gray-900">Laporan & Settlement</h2>
+              <p className="text-sm text-gray-600">Tanggal: {date} · Kasir: {user?.name ?? '-'}</p>
+            </div>
             {/* Laporan Harian - kartu ringkasan */}
             <div className="mb-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
@@ -328,14 +347,21 @@ export default function LaporanSettlement() {
                 </div>
               </Card>
             </div>
-          </>
+          </div>
         )}
 
         {!report && !isLoading && (
-          <Card className="py-8 text-center text-gray-500">
+          <Card className="py-8 text-center text-gray-500 print:hidden">
             Pilih tanggal dan klik Tampilkan untuk melihat laporan.
           </Card>
         )}
+
+        <style>{`
+          @media print {
+            body { background: white; }
+            .laporan-settlement-print { padding: 0; }
+          }
+        `}</style>
       </main>
     </div>
   );
