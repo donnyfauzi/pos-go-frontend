@@ -163,7 +163,7 @@ export default function KokiDashboard() {
             </div>
             <div className="flex items-center">
               <img
-                src="/logo-card2.png"
+                src="/logo-card.png"
                 alt="Kitchen"
                 className="h-24 w-auto"
               />

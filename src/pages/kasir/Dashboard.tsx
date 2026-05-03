@@ -98,8 +98,22 @@ export default function KasirDashboard() {
         setIsLoading(false);
         // Hanya set selectedId saat pertama kali (null) atau ketika transaksi yang dipilih tidak ada di data baru
         setSelectedId((prev) => {
-          if (!prev && sorted.length > 0) return sorted[0].id;
-          if (prev && !sorted.some((t) => t.id === prev) && sorted.length > 0) return sorted[0].id;
+          const currentFiltered = activeTab === 'cancelled' 
+            ? sorted.filter((t) => t.order_status === 'cancelled')
+            : sorted.filter((t) => t.order_status === 'pending' || t.order_status === 'ready');
+
+          // Jika tidak ada pesanan di tab ini, jangan pilih apa-apa
+          if (currentFiltered.length === 0) return null;
+
+          // Jika belum ada yang dipilih (null), pilih yang terbaru (indeks 0)
+          if (!prev) return currentFiltered[0].id;
+
+          // Jika sebelumnya sudah pilih sesuatu, tapi ID-nya sudah hilang dari daftar (karena berubah status)
+          // maka alihkan pilihan ke pesanan terbaru yang ada di daftar saat ini
+          if (prev && !currentFiltered.some((t) => t.id === prev)) {
+            return currentFiltered[0].id;
+          }
+
           return prev;
         });
       } catch (e: any) {
@@ -355,7 +369,7 @@ export default function KasirDashboard() {
             </div>
             <div className="hidden md:block">
               <img
-                src="/logo-card2.png"
+                src="/logo-card.png"
                 alt="Welcome"
                 className="h-24 w-auto"
               />
@@ -380,7 +394,7 @@ export default function KasirDashboard() {
           <Card className="lg:col-span-1">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-bold text-gray-900">Antrian Pesanan</h3>
-              <span className="text-xs text-gray-500">{transactions.length} pesanan</span>
+              <span className="text-xs text-gray-500">{filtered.length} pesanan</span>
             </div>
 
             {/* Tabs - styled like top tabs */}

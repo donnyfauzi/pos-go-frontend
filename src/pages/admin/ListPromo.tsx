@@ -224,7 +224,7 @@ export default function ListPromo() {
               </div>
               <div className="hidden md:block">
                 <img
-                  src="/logo-card2.png"
+                  src="/logo-card.png"
                   alt="Welcome"
                   className="h-24 w-auto"
                 />
